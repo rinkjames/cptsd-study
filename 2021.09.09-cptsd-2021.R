@@ -12,7 +12,7 @@ library(psych) # psychometrics
 # import data -------------------------------------------------------------
 
 setwd("~/Documents/work/2021 UCT/cptsd masters study/5. analysis/cptsd-2021")
-df <- as_tibble(read.csv("20210913-data-export-deidentified.csv"))
+df <- as_tibble(read.csv("2021.12.01-data-export-raw.csv"))
 
 
 # cleaning data -----------------------------------------------------------
