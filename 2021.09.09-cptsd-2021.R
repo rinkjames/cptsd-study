@@ -9,6 +9,11 @@ library(psych) # psychometrics
 # library(ggplot2)    # plots
 
 
+# convenient functions ----------------------------------------------------
+
+colno <- function(.data)data.frame(colnames(.data))   # column numbers
+
+
 # import data -------------------------------------------------------------
 
 setwd("~/Documents/work/2021 UCT/cptsd masters study/5. analysis/cptsd-2021")
@@ -17,16 +22,26 @@ df <- as_tibble(read.csv("2021.12.01-data-export-raw.csv"))
 
 # cleaning data -----------------------------------------------------------
 
+# remove rows used for survey testing
+df <- df %>%
+  unite(testing_rows, c(
+    consent_name_first_short,
+    consent_name_last_short,
+    consent_email_short
+  ), sep = "") %>%
+  filter(!str_detect(testing_rows, "rink|blayac|test|junior|aajoe@user.com") &
+    testing_rows != "")
+
 # remove unneeded columns
-df <- df |>
-  select(-c(2, 5:14, 124:125, 262, 272:274))
+df <- df %>% 
+  select(-c(2, 4:11, 13:14, 124:125, 262, 273:274))
 
 # labelling columns
 colnames(df) <- c(
-  "id", "date", "uni",
+  "id", "date", "dup_id_1",
   # lec5 columns
-  paste0("lec", "_", c(1:16, "17a", "17b")) |>
-    map(\(i) paste0(i, "_", LETTERS[1:6])) |>
+  paste0("lec", "_", c(1:16, "17a", "17b")) %>% 
+    map(~ paste0(., "_", LETTERS[1:6])) %>% 
     unlist(), "lec_17_desc",
   # critA columns
   c(
@@ -72,17 +87,19 @@ colnames(df) <- c(
   "dx_psych",
   "therapy",
   "meds",
-  "complete",
-  "dup_id"
+  "dup_id_2",
+  "complete"
 )
 
 # removing incomplete and duplicate responses
-df <- df |>
-  filter(complete == 2 & !is.na(dup_id)) |>
+df <- df %>%
+  unite(dup_id, c("dup_id_1", "dup_id_2"), sep = "") %>%
+  mutate(dup_id = na_if(dup_id, "") %>%
+    str_trim() %>%
+    str_squish()) %>%
+  filter(complete == 2 & !is.na(dup_id)) %>%
+  distinct(dup_id, .keep_all = TRUE) %>% 
   select(-complete, -dup_id)
-
-## university vars (nomibal); uct, ru, tut, wits
-df$uni <- factor('uct')
 
 ## lec5 vars (nominal); A-F
 df <- df |>
