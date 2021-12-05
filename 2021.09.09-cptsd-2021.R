@@ -33,15 +33,15 @@ df <- df %>%
     testing_rows != "")
 
 # remove unneeded columns
-df <- df %>% 
+df <- df %>%
   select(-c(2, 4:11, 13:14, 124:125, 262, 273:274))
 
 # labelling columns
 colnames(df) <- c(
   "id", "date", "dup_id_1",
   # lec5 columns
-  paste0("lec", "_", c(1:16, "17a", "17b")) %>% 
-    map(~ paste0(., "_", LETTERS[1:6])) %>% 
+  paste0("lec", "_", c(1:16, "17a", "17b")) %>%
+    map(~ paste0(., "_", LETTERS[1:6])) %>%
     unlist(), "lec_17_desc",
   # critA columns
   c(
@@ -59,18 +59,18 @@ colnames(df) <- c(
   paste0("pcl", "_", c(1:20)),
   # itq columns
   c(
-    c("re", "av", "th") |>
-      map(\(i) paste0(i, "_", 1:2)) |>
+    c("re", "av", "th") %>% 
+      map(~ paste0(., "_", 1:2)) %>% 
       unlist(),
     paste0("imp_ptsd", "_", 1:3),
-    c("ad", "nsc", "dr") |>
-      map(\(i) paste0(i, "_", 1:2)) |>
+    c("ad", "nsc", "dr") %>% 
+      map(~ paste0(., "_", 1:2)) %>% 
       unlist(),
     paste0("imp_dso", "_", 1:3)
   ) %>% paste0("itq", "_", .),
   # bpd columns
   c("bin", "lik") %>%
-    map(\(i) paste0("bpd", "_", i, "_", 1:15)) |>
+    map(~ paste0("bpd", "_", ., "_", 1:15)) %>% 
     unlist(),
   # bdi columns
   paste0("bdi", "_", c(1:21)),
@@ -102,30 +102,30 @@ df <- df %>%
   select(-complete, -dup_id)
 
 ## lec5 vars (nominal); A-F
-df <- df |>
-  select(lec_1_A:lec_17b_F) |>
-  mutate(resp = row_number()) |>
+df <- df %>%
+  select(lec_1_A:lec_17b_F) %>%
+  mutate(resp = row_number()) %>%
   pivot_longer(
     cols = !resp,
     names_to = c(".value", "choices"),
     names_pattern = "^(lec_\\d+[a-b]?)_([A-F])$"
-  ) |>
-  group_by(resp) |>
-  summarise(across(!choices, \(i) str_c(choices[as.logical(i)],
+  ) %>%
+  group_by(resp) %>%
+  summarise(across(!choices, ~ str_c(choices[as.logical(.)],
     collapse = ""
-  ))) |>
-  bind_cols(df) |>
-  select(!c(lec_1_A:lec_17b_F, resp)) |>
-  relocate(lec_1:lec_17b, .after = uni)
+  ))) %>%
+  bind_cols(df) %>%
+  select(!c(lec_1_A:lec_17b_F, resp)) %>%
+  relocate(lec_1:lec_17b, .after = date)
 
 # renaming lec_17a and removing empty lec_17b
-df <- df |>
-  rename(lec_17 = lec_17a) |>
+df <- df %>% 
+  rename(lec_17 = lec_17a) %>% 
   select(!lec_17b)
 
 ## critA vars
 # time index for critA traumatic event (continuous); months
-df$critA_time <-
+df$critA_time[1:148] <-
   c(
     2, 2, 7, 3 / 12, 2, 2.5, 3 / 12, 8, NA, 4 / 12,
     6, 32, 2, 4, 16, 6, 2, NA, 13, 11,
@@ -142,31 +142,30 @@ df$critA_time <-
     5, 3, 1 / 12, 3651 / 365, 2, 7, 10, 5, 8, NA,
     5, 6, 2, 4, 3, 32 / 365, 1.5, 8, 2, 4,
     3, 3, 21 / 365, 157 / 365, 3, NA, 4, 1 / 12
-  ) |>
-  (\(i) as.integer(i * 12))()
+  ) %>% as.integer(. * 12)
 
 # critA experience, life_in_danger, and injury_death vars (nominal); A-E
-df <- df |>
-  select(critA_exp_A:critA_injury_death_C & -critA_exp_E_desc) |>
-  mutate(resp = row_number()) |>
+df <- df %>% 
+  select(critA_exp_A:critA_injury_death_C & -critA_exp_E_desc) %>% 
+  mutate(resp = row_number()) %>% 
   pivot_longer(
     cols = !resp,
     names_to = c(".value", "choices"),
     names_pattern = "^(critA_.*)_([A-E])$"
-  ) |>
+  ) %>% 
   mutate(across(
     critA_life_in_danger:critA_injury_death,
-    \(i) replace_na(i, 0)
-  )) |> 
-  group_by(resp) |>
+    ~ replace_na(., 0)
+  )) %>% 
+  group_by(resp) %>% 
   summarise(across(
     !choices,
-    \(i) str_c(choices[as.logical(i)], collapse = "")
-  )) |>
-  bind_cols(df) |>
-  rename(critA_exp_desc = critA_exp_E_desc) |>
-  select(!c(critA_exp_A:critA_injury_death_C & -critA_exp_desc, resp)) |>
-  relocate(critA_exp, .before = critA_exp_desc) |>
+    ~ str_c(choices[as.logical(.)], collapse = "")
+  )) %>% 
+  bind_cols(df) %>% 
+  rename(critA_exp_desc = critA_exp_E_desc) %>% 
+  select(!c(critA_exp_A:critA_injury_death_C & -critA_exp_desc, resp)) %>% 
+  relocate(critA_exp, .before = critA_exp_desc) %>% 
   relocate(critA_life_in_danger:critA_injury_death,
     .before = critA_sex_violence
   )
@@ -212,23 +211,23 @@ psych_reg <- c(
 ))
 
 psychometrics <-
-  map_df(psych_reg, \(i)
-  df |>
-    select(matches(i)) |>
-    alpha(keys = c(
-      "ctq_2", "ctq_5", "ctq_7", "ctq_10", "ctq_13",
-      "ctq_16", "ctq_19", "ctq_22", "ctq_26", "ctq_28"
-    )) |>
-    (\(j) j$total)() |>
-    remove_rownames(),
+  map_df(psych_reg, \(i) {
+    df %>%
+      select(matches(i)) %>%
+      alpha(keys = c(
+        "ctq_2", "ctq_5", "ctq_7", "ctq_10", "ctq_13",
+        "ctq_16", "ctq_19", "ctq_22", "ctq_26", "ctq_28"
+      )) %>%
+      .$total %>%
+      remove_rownames()
+  },
   .id = "scale"
   )
-
 
 # calculating vars --------------------------------------------------------
 
 ## critA endorsement
-df <- df |>
+df <- df %>% 
   mutate(
     critA = case_when(
       critA_time >= 1 &
@@ -237,12 +236,12 @@ df <- df |>
           str_detect(critA_injury_death, "[A-B]") |
           critA_sex_violence == 1) ~ 1,
       TRUE ~ 0
-    ) |> as.integer()
-  ) |>
+    ) %>%  as.integer()
+  ) %>% 
   relocate(critA, .after = critA_exposure_mult)
 
 # manual recoding based on interpretation of critA_desc
-df <- df |>
+df <- df %>% 
   mutate(critA = ifelse(id %in%
     c(
       7, 8, 9, 15, 18, 19, 27, 52, 59, 67,
