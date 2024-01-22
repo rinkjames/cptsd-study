@@ -4,3 +4,4 @@
 .RData
 .Ruserdata
 data/raw/
+*02-clean1.R*
