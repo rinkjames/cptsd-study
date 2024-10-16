@@ -3,8 +3,8 @@ p_load(here, tidyverse)
 # poLCA used for fitting lca models
 # psych used for calculating psychometrics
 
-source(here("R", '01-func.R'))
-source(here("R", '00-load.R'))
+source(here("R", '00-func.R'))
+source(here("R", '01-load.R'))
 source(here("R", '02-clean1.R'))
 source(here("R", '02-clean2.R'))
 source(here("R", '03-calc.R'))
