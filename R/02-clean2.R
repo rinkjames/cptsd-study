@@ -1,6 +1,8 @@
-# cleaning data -----------------------------------------------------------
+# —————————————————————————————————————————————————————————————————————————
+# clean non-sensitive data
+# —————————————————————————————————————————————————————————————————————————
 
-# remove duplicate rows, keeping earliest duplicate
+# remove duplicate rows, keeping earliest instance
 df1 <- df1 %>%
   group_by(student_no) %>%
   filter(id == min(id)) %>%
@@ -15,8 +17,8 @@ df1 <- df1 %>%
 
 # uni var
 df1 <- df1 %>% mutate(
-  uni = ifelse(is.na(uni) == TRUE, 1, uni),
-  uni = ifelse(id == 1890, 2, uni),
+  uni = if_else(is.na(uni) == T, 1, uni),
+  uni = if_else(id == 1890, 2, uni),
   uni = uni %>% factor(labels = c("uct", "wits", "ru"))
 )
 
@@ -46,7 +48,7 @@ df1 <- df1 %>% mutate(across(ctq_1:ctq_28, ~ .x + 1))
 
 # income vars
 df1 <- df1 %>% mutate(income_source = income_source %>%
-                        factor(labels = c("family", "independent")))
+    factor(labels = c("family", "independent")))
 
 df1 <- df1 %>%
   mutate(
@@ -184,5 +186,15 @@ df1 <- df1 %>% select(bpd_likb_7_2_A:bpd_likb_7_2_F) %>%
 
 df1 <- df1 %>% relocate(bpd_likb_10_2, .after = bpd_likb_10_1) %>% 
   relocate(bpd_lika_1:bpd_lika_15, .before = bpd_likb_1_1)
+
+# # export bpd_likb to score manually
+# write_csv(
+#   df1 %>% filter(id >= 664) %>% select(id, age, bpd_likb_1_1:bpd_likb_15_eg3),
+#   here("output", paste(
+#     format(Sys.time(), "%Y.%m.%d"),
+#     "bpd_likb.csv",
+#     sep = "-"
+#   ))
+# )
 
 # df1 %>% glimpse()

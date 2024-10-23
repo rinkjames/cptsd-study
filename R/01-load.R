@@ -1,4 +1,6 @@
-# import data -------------------------------------------------------------
+# —————————————————————————————————————————————————————————————————————————
+# import data
+# —————————————————————————————————————————————————————————————————————————
 
 df1 <- here("data/raw", "2022.11.22-raw.csv") %>%
   read_csv(
@@ -29,12 +31,12 @@ df1 <- here("data/raw", "2022.11.22-raw.csv") %>%
       # socio
       "d_dddddddddc_dd"
     ),
-    trim_ws = TRUE
+    trim_ws = T
   )
 
 # renaming columns
 df1 <- df1 %>%
-  setNames(
+  set_names(
     c(
       "id",
       "date_submit",

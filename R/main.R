@@ -1,5 +1,14 @@
+# —————————————————————————————————————————————————————————————————————————
+# LCA of complex post-traumatic stress disorder
+# —————————————————————————————————————————————————————————————————————————
+
+# github.com/rinkjames/cptsd-study
+
+renv::update()
+renv::checkout()
+
 library(pacman)
-p_load(here, tidyverse)
+p_load(here, tidyverse, digest)
 # poLCA used for fitting lca models
 # psych used for calculating psychometrics
 
