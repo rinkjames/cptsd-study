@@ -309,16 +309,16 @@ df1 <-
   df1 %>% mutate(bdi_mdd_score = rowSums(across(bdi_1:bdi_21), na.rm = T))
 
 # bdi severity scores
-# 1=normal; 2=mild; 3=borderline; 4=moderate; 5=severe; 6=extreme
+# 1=minimal; 2=mild; 3=moderate; 4=severe
 df1 <-
   df1 %>% mutate(bdi_mdd_sev = cut(rowSums(across(bdi_1:bdi_21), na.rm = T),
-                               c(-1, 10, 16, 20, 30, 40, 63),
-                               labels = 1:6) %>% as.numeric())
+                               c(-1, 13, 19, 28, 63),
+                               labels = 1:4) %>% as.numeric())
 
 # bdi diagnostic scores
 # endorsement = moderate-to-severe sx
 df1 <- df1 %>%
-  mutate(bdi_mdd = case_when(bdi_mdd_sev >= 4 ~ 1, TRUE ~ 0))
+  mutate(bdi_mdd = case_when(bdi_mdd_sev >= 3 ~ 1, TRUE ~ 0))
 
 ## ctq vars ---------------------------------------------------------------
 
